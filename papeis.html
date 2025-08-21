@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards dos Papéis da Equipe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            border-color: var(--accent-color);
+        }
+
+        .card.highlight {
+            animation: pulse 0.6s ease-in-out;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.4);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .card-level {
+            display: none;
+        }
+
+        .section {
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #34495e;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-content {
+            font-size: 0.95rem;
+            color: #5a6c7d;
+            line-height: 1.5;
+        }
+
+        .section-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .section-content li {
+            padding: 3px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-content li::before {
+            content: '•';
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: var(--accent-light);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .tag:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .tag:active {
+            transform: translateY(0);
+        }
+
+        /* Cores específicas por categoria */
+        .dev-junior { 
+            --accent-color: #3498db; 
+            --accent-light: #e3f2fd; 
+            --accent-rgb: 52, 152, 219;
+        }
+        .dev-senior { 
+            --accent-color: #e74c3c; 
+            --accent-light: #ffebee; 
+            --accent-rgb: 231, 76, 60;
+        }
+        .leader { 
+            --accent-color: #f39c12; 
+            --accent-light: #fff8e1; 
+            --accent-rgb: 243, 156, 18;
+        }
+        .manager { 
+            --accent-color: #9b59b6; 
+            --accent-light: #f3e5f5; 
+            --accent-rgb: 155, 89, 182;
+        }
+        .designer { 
+            --accent-color: #1abc9c; 
+            --accent-light: #e0f2f1; 
+            --accent-rgb: 26, 188, 156;
+        }
+        .qa { 
+            --accent-color: #34495e; 
+            --accent-light: #eceff1; 
+            --accent-rgb: 52, 73, 94;
+        }
+
+        .card-level {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+
+        .level-juniors { background: #e3f2fd; color: #1976d2; }
+        .level-gerencia { background: #f3e5f5; color: #7b1fa2; }
+        .level-asof { background: #fff3e0; color: #f57c00; }
+        .level-designer { background: #e0f2f1; color: #00695c; }
+        .level-desenvolvedores { background: #ffebee; color: #c62828; }
+        .level-qa { background: #eceff1; color: #37474f; }
+
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .print-btn:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            .print-btn { display: none; }
+            body { background: white; }
+            .cards-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Tooltip para tags não encontradas */
+        .tag.not-found {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .tag.not-found:hover {
+            background: var(--accent-light);
+            color: var(--accent-color);
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Papéis da Equipe</h1>
+            <p>Estrutura organizacional e responsabilidades do projeto</p>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Desenvolvedor Júnior BD -->
+            <div class="card dev-junior" id="dev-junior-bd">
+                <div class="card-header">
+                    <h2 class="card-title">Desenvolvedor Júnior de BD</h2>
+                    <span class="card-level level-juniors">Juniores</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Implementar consultas SQL</li>
+                            <li>Modelar entidades</li>
+                            <li>Construir tabelas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="lider-bd">Líder de BD</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="scrum-master">Scrum Master</button>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Scripts SQL</li>
+                            <li>Modelos lógico e físico</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Casos de uso</li>
+                            <li>Especificação de requisitos de BD</li>
+                            <li>Feedback de qualidade do material produzido</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Líder BD -->
+            <div class="card leader" id="lider-bd">
+                <div class="card-header">
+                    <h2 class="card-title">Líder de BD</h2>
+                    <span class="card-level level-juniors">Juniores</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Coordenar juniores</li>
+                            <li>Repassar dúvidas/demandas ao Scrum Master</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="dev-junior-bd">Desenvolvedores Júnior BD</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="scrum-master">Scrum Master</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Relatórios de progresso da equipe</li>
+                            <li>Atas de reunião</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Refinamento da sprint</li>
+                            <li>Feedback de qualidade do material produzido pela equipe</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desenvolvedor Júnior POO -->
+            <div class="card dev-junior" id="dev-junior-poo">
+                <div class="card-header">
+                    <h2 class="card-title">Desenvolvedor Júnior de POO</h2>
+                    <span class="card-level level-juniors">Juniores</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Implementar código orientado a objetos conforme padrões definidos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="lider-poo">Líder de POO</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="scrum-master">Scrum Master</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Classes e Métodos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Diagramas de classes</li>
+                            <li>Casos de uso</li>
+                            <li>Feedback de qualidade do material produzido</li>
+                    </ul>
+                </div>
+                </div>
+            </div>
+
+            <!-- Líder POO -->
+            <div class="card leader" id="lider-poo">
+                <div class="card-header">
+                    <h2 class="card-title">Líder de POO</h2>
+                    <span class="card-level level-juniors">Juniores</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Coordenar juniores</li>
+                            <li>Repassar dúvidas e/ou demandas ao Scrum Master</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="dev-junior-poo">Desenvolvedores Júnior de POO</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="scrum-master">Scrum Master</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Relatórios de progresso</li>
+                            <li>Atas de reunião</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Refinamento da sprint</li>
+                            <li>Feedback de qualidade do material produzido pela equipe</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Líder do Projeto -->
+            <div class="card manager" id="lider-projeto">
+                <div class="card-header">
+                    <h2 class="card-title">Líder do Projeto</h2>
+                    <span class="card-level level-gerencia">Gerência do Projeto</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Coordenar equipe</li>
+                            <li>Organizar tarefas</li>
+                            <li>Resolver conflitos</li>
+                            <li>Consolidar comunicação</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag not-found">Todos os papéis</button>
+                            <button class="tag not-found">Professores</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Cronogramas</li>
+                            <li>Atas de reunião</li>
+                            <li>Relatórios</li>
+                            <li>Plano de comunicação</li>
+                            <li>Sprint backlog</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Status dos membros</li>
+                            <li>Feedback da equipe</li>
+                            <li>Documentos de métricas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerente de Processo -->
+            <div class="card manager" id="gerente-processo">
+                <div class="card-header">
+                    <h2 class="card-title">Gerente de Processo</h2>
+                    <span class="card-level level-gerencia">Gerência do Projeto</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Definir métodos de trabalho</li>
+                            <li>Monitorar aderência ao processo</li>
+                            <li>Medir eficiência</li>
+                            <li>Avaliar se a comunicação está ocorrendo de maneira eficaz</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="lider-projeto">Líder do Projeto</button>
+                            <button class="tag" data-target="gerente-config">Gerente de Configuração</button>
+                            <button class="tag" data-target="analista-qa-a">Analistas de Qualidade</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Relatórios de métricas</li>
+                            <li>Documentação de processos</li>
+                            <li>Diagramas e documentos para explicar o processo e os papéis</li>
+                            <li>Atualizações no EPF</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Feedback da equipe</li>
+                            <li>Relatórios automatizados</li>
+                            <li>Métricas de Produto</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerente de Configuração -->
+            <div class="card manager" id="gerente-config">
+                <div class="card-header">
+                    <h2 class="card-title">Gerente de Configuração</h2>
+                    <span class="card-level level-gerencia">Gerência do Projeto</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Gerenciar repositórios</li>
+                            <li>Versionamento</li>
+                            <li>Builds e releases</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="lider-projeto">Líder do Projeto</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="dev-pleno">Desenvolvedores Plenos</button>
+                            <button class="tag" data-target="analista-qa-a">Analistas de Qualidade</button>
+                            <button class="tag" data-target="arquiteto">Arquiteto</button>
+                            <button class="tag" data-target="gerente-processo">Gerente de Processo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Releases versionadas</li>
+                            <li>Métricas do GitHub</li>
+                            <li>Plano de configuração</li>
+                            <li>Tutoriais do GitHub</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Métricas dos Analistas</li>
+                            <li>Feedback de testes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrum Master -->
+            <div class="card leader" id="scrum-master">
+                <div class="card-header">
+                    <h2 class="card-title">Scrum Master</h2>
+                    <span class="card-level level-gerencia">Gerência do Projeto</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Facilitar comunicação</li>
+                            <li>Remover impedimentos</li>
+                            <li>Organizar reuniões com juniores quando necessário</li>
+                            <li>Verificar e repassar os modelos dos juniores</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="lider-poo">Líderes POO</button>
+                            <button class="tag" data-target="lider-bd">Líderes BD</button>
+                            <button class="tag" data-target="dev-junior-poo">Júniores POO</button>
+                            <button class="tag" data-target="dev-junior-bd">Júniores BD</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="analista-qa-a">Analistas de Qualidade</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Atas de reunião</li>
+                            <li>Relatórios de impedimentos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Refinamento da Sprint</li>
+                            <li>Feedback da equipe</li>
+                            <li>Status de progresso</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Owner -->
+            <div class="card manager" id="product-owner">
+                <div class="card-header">
+                    <h2 class="card-title">Product Owner (PO)</h2>
+                    <span class="card-level level-gerencia">Gerência do Projeto</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Definir e priorizar backlog</li>
+                            <li>Alinhar requisitos com stakeholders</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="lider-projeto">Líder do Projeto</button>
+                            <button class="tag" data-target="analista-qa-a">Analista de Qualidade</button>
+                            <button class="tag" data-target="arquiteto">Arquiteto de Software</button>
+                            <button class="tag" data-target="designer-software">Designer de Software</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Backlog priorizado</li>
+                            <li>Critérios de aceitação</li>
+                            <li>Feedback de cada incremento</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Feedback de testes</li>
+                            <li>Levantamento de requisitos</li>
+                            <li>Incremento realizado em cada sprint</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arquiteto de Software -->
+            <div class="card dev-senior" id="arquiteto">
+                <div class="card-header">
+                    <h2 class="card-title">Arquiteto de Software</h2>
+                    <span class="card-level level-asof">ASOF</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Definir arquitetura geral</li>
+                            <li>Selecionar tecnologias e padrões</li>
+                            <li>Realizar Prova de Conceito</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="gerente-config">Gerente de Configuração</button>
+                            <button class="tag" data-target="designer-ui">Designers de Jogos UI</button>
+                            <button class="tag" data-target="designer-ux">Designers de Jogos UX</button>
+                            <button class="tag" data-target="product-owner">Product Owner</button>
+                            <button class="tag" data-target="analista-qa-b">Analistas de Qualidade</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Documento de arquitetura</li>
+                            <li>Padrões de projeto</li>
+                            <li>Documentação da Prova de Conceito (PoC)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Requisitos do sistema</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Designer de Software -->
+            <div class="card designer" id="designer-software">
+                <div class="card-header">
+                    <h2 class="card-title">Designer de Software</h2>
+                    <span class="card-level level-asof">ASOF</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Criar diagramas detalhados</li>
+                            <li>Cria os modelos necessários para a sprint</li>
+                            <li>Obs: Os diagramas e modelos produzidos dizem respeito a próxima sprint</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="arquiteto">Arquiteto</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedor Sêniores</button>
+                            <button class="tag" data-target="analista-qa-a">Analista de Qualidade</button>
+                            <button class="tag" data-target="product-owner">Product Owner</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Diagramas UML e demais modelos necessários</li>
+                            <li>Padrões de projeto</li>
+                            <li>Refinamento das Sprints</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Definições arquiteturais</li>
+                            <li>Requisitos do sistema</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+              <!-- Desenvolvedor Pleno -->
+        <div class="card dev-senior" id="dev-pleno">
+            <div class="card-header">
+                <h2 class="card-title">Desenvolvedor Pleno</h2>
+                <span class="card-level level-asof">ASOF/Desenvolvedores</span>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">⚙️</span> Responsabilidades
+                </div>
+                <div class="section-content">
+                    <ul>
+                        <li>Auxiliar os desenvolvedores Sêniores quando necessário</li>
+                        <li>Contribuir na integração de componentes</li>
+                        <li>Apoiar o time em análises técnicas</li>
+                        <li>Obs: O que o Desenvolvedor Pleno A fizer, será avaliado pelo analista B</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">🤝</span> Interações
+                </div>
+                <div class="section-content">
+                    <div class="tags">
+                        <button class="tag" data-target="dev-senior">Desenvolvedor Sênior</button>
+                        <button class="tag" data-target="arquiteto">Arquiteto</button>
+                        <button class="tag" data-target="gerente-config">Gerente Configuração</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">📤</span> Produz
+                </div>
+                <div class="section-content">
+                    <ul>
+                        <li>Códigos</li>
+                        <li>Documentação técnica</li>
+                        <li>Contribuições para integração do sistema</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <span class="icon">📥</span> Recebe
+                </div>
+                <div class="section-content">
+                    <ul>
+                        <li>Diagrama UML e demais modelos necessários</li>
+                        <li>Requisitos dos sistemas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+            <!-- Designer de UI -->
+            <div class="card designer" id="designer-ui">
+                <div class="card-header">
+                    <h2 class="card-title">Designer de Jogos UI</h2>
+                    <span class="card-level level-designer">Designers</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Criar interfaces gráficas e visuais do jogo</li>
+                            <li>Auxiliar dev. sênior na programação front-end</li>
+                            <li>Obs: O que for produzido será utilizado na próxima sprint</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="designer-ux">Designer de UX</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedores</button>
+                            <button class="tag" data-target="analista-qa-a">Analistas de Qualidade</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Telas</li>
+                            <li>Diretrizes visuais</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Código</li>
+                            <li>Backlog</li>
+                            <li>Builds e releases</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Designer de UX -->
+            <div class="card designer" id="designer-ux">
+                <div class="card-header">
+                    <h2 class="card-title">Designer de UX (Jogos)</h2>
+                    <span class="card-level level-designer">Designers</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Criar fluxos de interação</li>
+                            <li>Desenvolver protótipos navegáveis</li>
+                            <li>Auxiliar dev. sênior na programação front-end</li>
+                            <li>Obs: O que for produzido será utilizado na próxima sprint</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="designer-ui">Designer de UI</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedor Sênior</button>
+                            <button class="tag" data-target="arquiteto">Arquiteto</button>
+                            <button class="tag" data-target="analista-qa-a">Analista de Qualidade</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Protótipos de UX</li>
+                            <li>Fluxos de navegação</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Código</li>
+                            <li>Backlog</li>
+                            <li>Builds e releases</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desenvolvedor Sênior -->
+            <div class="card dev-senior" id="dev-senior">
+                <div class="card-header">
+                    <h2 class="card-title">Desenvolvedor Sênior</h2>
+                    <span class="card-level level-desenvolvedores">Desenvolvedores</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Codificar módulos críticos</li>
+                            <li>Revisar código dos juniores</li>
+                            <li>Realizar treinamentos para juniores</li>
+                            <li>Apoiar juniores</li>
+                            <li>Realizar integração</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="dev-junior-bd">Juniores de BD</button>
+                            <button class="tag" data-target="dev-junior-poo">Juniores de POO</button>
+                            <button class="tag" data-target="arquiteto">Arquiteto</button>
+                            <button class="tag" data-target="lider-bd">Líderes BD</button>
+                            <button class="tag" data-target="lider-poo">Líderes POO</button>
+                            <button class="tag" data-target="gerente-config">Gerente Configuração</button>
+                            <button class="tag" data-target="analista-qa-a">Analista de Qualidade</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Código de alto nível</li>
+                            <li>Relatórios técnicos</li>
+                            <li>Feedback para juniores</li>
+                            <li>Padrões de Código</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Backlog</li>
+                            <li>Diagramas de classe</li>
+                            <li>Código dos juniores</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+ 
+            <!-- Analista de Qualidade Sênior A -->
+            <div class="card qa" id="analista-qa-a">
+                <div class="card-header">
+                    <h2 class="card-title">Analista de Qualidade A</h2>
+                    <span class="card-level level-qa">Quality Assurance (QA)</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Definir plano de testes</li>
+                            <li>Assegurar qualidade geral</li>
+                            <li>Avaliar artefatos do Designer de Software</li>
+                            <li>Gerar as métricas de Produto</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="designer-software">Designer de Software</button>
+                            <button class="tag" data-target="arquiteto">Arquiteto</button>
+                            <button class="tag" data-target="gerente-config">Gerente Configuração</button>
+                            <button class="tag" data-target="dev-senior">Desenvolvedor Sênior</button>
+                            <button class="tag" data-target="product-owner">Product Owner</button>
+                            <button class="tag" data-target="analista-qa-a">Analista de Qualidade A</button>
+                            <button class="tag" data-target="designer-jogos-ux">Designer de Jogos UX</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Casos de teste</li>
+                            <li>Relatórios de bugs</li>
+                            <li>Feedback sobre diagramas arquiteturais</li>
+                            <li>Métricas de Produto</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Código</li>
+                            <li>Backlog</li>
+                            <li>Builds e releases</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analista de Qualidade Sênior B -->
+            <div class="card qa" id="analista-qa-b">
+                <div class="card-header">
+                    <h2 class="card-title">Analista de Qualidade Sênior B</h2>
+                    <span class="card-level level-qa">Quality Assurance (QA)</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">⚙️</span> Responsabilidades
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Definir e executar testes</li>
+                            <li>Apoiar integração de sistemas</li>
+                            <li>Compartilhar execução de QA com colega A</li>
+                            <li>Gerar as métricas de Produto</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🤝</span> Interações
+                    </div>
+                    <div class="section-content">
+                        <div class="tags">
+                            <button class="tag" data-target="dev-senior">Desenvolvedores Sêniores</button>
+                            <button class="tag" data-target="product-owner">Product Owner</button>
+                            <button class="tag" data-target="gerente-config">Gerente de Configuração</button>
+                            <button class="tag" data-target="analista-qa-a">Analista de Qualidade A</button>
+                            <button class="tag" data-target="designer-ux">Designer de Jogos UX</button>
+                            <button class="tag" data-target="designer-ui">Designer de Jogos UI</button>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📤</span> Produz
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Casos de teste</li>
+                            <li>Relatórios de bugs</li>
+                            <li>Logs de testes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📥</span> Recebe
+                    </div>
+                    <div class="section-content">
+                        <ul>
+                            <li>Código</li>
+                            <li>Backlog</li>
+                            <li>Builds e releases</li>
+                            <li>Casos de teste</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ 
+    <script>
+        // Função para navegar até um card específico
+        function navigateToCard(targetId) {
+            const targetCard = document.getElementById(targetId);
+            if (targetCard) {
+                // Remove qualquer highlight anterior
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.remove('highlight');
+                });
+                
+                // Rola até o card
+                targetCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                
+                // Adiciona o efeito de highlight
+                setTimeout(() => {
+                    targetCard.classList.add('highlight');
+                    
+                    // Remove o highlight após a animação
+                    setTimeout(() => {
+                        targetCard.classList.remove('highlight');
+                    }, 600);
+                }, 100);
+            }
+        }
+
+        // Adiciona event listeners aos botões de tag
+        document.addEventListener('DOMContentLoaded', function() {
+            const tagButtons = document.querySelectorAll('.tag[data-target]');
+            
+            tagButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    navigateToCard(targetId);
+                });
+            });
+
+            // Adiciona animação suave aos cards no carregamento
+            const cards = document.querySelectorAll('.card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+                observer.observe(card);
+            });
+
+            // Torna as tags não encontradas não clicáveis
+            const notFoundTags = document.querySelectorAll('.tag.not-found');
+            notFoundTags.forEach(tag => {
+                tag.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
